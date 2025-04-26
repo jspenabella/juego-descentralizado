@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: Transparencia en Equipos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados si son necesarios, aunque Tailwind debería ser suficiente */
+        body {
+            font-family: "Inter", sans-serif; /* Usar fuente Inter */
+            background-color: #f3f4f6; /* Fondo gris claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px; /* Espaciado general */
+        }
+        .flashcard-container {
+            perspective: 1000px; /* Para el efecto de volteo 3D */
+            width: 100%;
+            max-width: 600px; /* Ancho máximo para el contenedor */
+        }
+        .flashcard {
+            width: 100%;
+            height: 400px; /* Altura fija para las tarjetas */
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s; /* Transición para el volteo */
+            border-radius: 12px; /* Bordes redondeados */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            background-color: #ffffff; /* Fondo blanco para la tarjeta */
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg); /* Voltear la tarjeta */
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Ocultar la cara trasera por defecto */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px; /* Espaciado interno */
+            text-align: center;
+            border-radius: 12px; /* Bordes redondeados */
+            overflow-y: auto; /* Permitir scroll si el contenido es largo */
+        }
+        .flashcard-front {
+            background-color: #e0f2f7; /* Fondo azul claro para el frente */
+            color: #0369a1; /* Texto azul oscuro */
+            font-size: 1.25rem; /* Tamaño de fuente más grande */
+            font-weight: 600; /* Texto semi-negrita */
+        }
+        .flashcard-back {
+            background-color: #d1fae5; /* Fondo verde claro para la parte trasera */
+            color: #065f46; /* Texto verde oscuro */
+            transform: rotateY(180deg); /* Rotar la parte trasera inicialmente */
+            font-size: 1rem; /* Tamaño de fuente normal */
+            line-height: 1.5; /* Espaciado entre líneas */
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px; /* Bordes redondeados */
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .button-primary {
+            background-color: #0ea5e9; /* Azul primario */
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: #0284c7; /* Azul más oscuro al pasar el ratón */
+        }
+        .button-secondary {
+            background-color: #60a5fa; /* Azul secundario */
+            color: white;
+        }
+        .button-secondary:hover {
+            background-color: #3b82f6; /* Azul más oscuro al pasar el ratón */
+        }
+        .button-disabled {
+            background-color: #d1d5db; /* Gris claro para deshabilitado */
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="flashcard-container">
+        <div id="flashcard" class="flashcard">
+            <div id="flashcard-front" class="flashcard-face flashcard-front">
+                </div>
+            <div id="flashcard-back" class="flashcard-face flashcard-back">
+                </div>
+        </div>
+
+        <div class="flex justify-center mt-6 space-x-4">
+            <button id="prev-button" class="button button-secondary">Anterior</button>
+            <button id="flip-button" class="button button-primary">Mostrar Respuesta</button>
+            <button id="next-button" class="button button-secondary">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        // Array de objetos con las preguntas y respuestas
+        const flashcards = [
+            {
+                question: "¿Cuál es la diferencia fundamental entre un equipo sin procesos transparentes y uno simplemente desorganizado?",
+                answer: "Un equipo sin procesos transparentes no solo está desorganizado, sino que está desorientado, ya que cada persona tiene una interpretación diferente de cómo se deben hacer las cosas."
+            },
+            {
+                question: "Menciona al menos tres problemas específicos que pueden surgir en un equipo donde los procesos no son transparentes.",
+                answer: "Algunos problemas que surgen sin transparencia son malentendidos sobre cómo actuar, diversidad de métodos que generan inconsistencias y dificultad para identificar errores o cuellos de botella."
+            },
+            {
+                question: "¿Por qué es importante documentar los procesos de forma accesible para todos los miembros del equipo, según el texto?",
+                answer: "Documentar los procesos de forma accesible asegura que todos los miembros del equipo puedan consultarlos y entenderlos, lo que reduce la confusión y la desorientación."
+            },
+            {
+                question: "¿Cuál es el beneficio de involucrar al equipo en la creación y mejora de los procesos?",
+                answer: "Involucrar al equipo en la creación y mejora de los procesos genera compromiso y aprendizaje colectivo, ya que todos se sienten dueños de los métodos de trabajo."
+            },
+            {
+                question: "¿Cómo se deben abordar los errores y las desviaciones de los procesos en un equipo transparente?",
+                answer: "Los errores y las desviaciones deben revisarse como una fuente de mejora, evaluando si un cambio en el proceso produjo un mejor resultado o entendiendo las razones de un fallo."
+            },
+            {
+                question: "¿Por qué es importante fomentar la conversación estructurada sobre la forma en que se trabaja en un equipo?",
+                answer: "Fomentar la conversación estructurada permite hablar no solo de las tareas, sino también de cómo se realizan y cómo podrían optimizarse, promoviendo la mejora continua."
+            },
+            {
+                question: "El texto afirma que la transparencia no es solo una práctica, sino una cultura. ¿Qué implica esta afirmación?",
+                answer: "Esta afirmación implica que la transparencia debe ser un valor fundamental en la forma de trabajar del equipo, integrado en su cultura y no solo como una serie de acciones aisladas."
+            },
+            {
+                question: "¿Cómo ayuda la transparencia a los miembros de un equipo a avanzar y mejorar en su trabajo?",
+                answer: "La transparencia ayuda a los miembros del equipo a saber cómo avanzar, cómo mejorar sus propias tareas y cómo colaborar y ayudar a sus compañeros a hacer lo mismo."
+            },
+            {
+                question: "¿Cuál es el objetivo principal de la transparencia en el contexto del trabajo en equipo, según el texto?",
+                answer: "El objetivo principal de la transparencia es crear una forma de trabajar donde todos comprendan los procesos, puedan identificar problemas y contribuir a la mejora continua, evitando la confusión y la frustración."
+            },
+            {
+                question: "El texto finaliza con una pregunta para el lector. ¿Cuál es esa pregunta y cuál es su propósito?",
+                answer: 'La pregunta es "¿Qué podrías hacer esta semana para mejorar la transparencia en tu equipo?". Su propósito es invitar a la reflexión y a la acción práctica por parte del lector para implementar la transparencia en su propio entorno laboral.'
+            }
+        ];
+
+        let currentCardIndex = 0; // Índice de la tarjeta actual
+        let isFlipped = false; // Estado de volteo de la tarjeta
+
+        // Obtener elementos del DOM
+        const flashcardElement = document.getElementById('flashcard');
+        const frontElement = document.getElementById('flashcard-front');
+        const backElement = document.getElementById('flashcard-back');
+        const prevButton = document.getElementById('prev-button');
+        const flipButton = document.getElementById('flip-button');
+        const nextButton = document.getElementById('next-button');
+
+        // Función para mostrar la tarjeta actual
+        function displayCard() {
+            const card = flashcards[currentCardIndex];
+            frontElement.textContent = card.question; // Mostrar la pregunta en el frente
+            backElement.textContent = card.answer; // Mostrar la respuesta en la parte trasera
+
+            // Asegurarse de que la tarjeta no esté volteada al mostrar una nueva
+            if (isFlipped) {
+                flashcardElement.classList.remove('flipped');
+                isFlipped = false;
+            }
+
+            // Actualizar el estado de los botones de navegación
+            updateNavigationButtons();
+        }
+
+        // Función para actualizar el estado (habilitado/deshabilitado) de los botones de navegación
+        function updateNavigationButtons() {
+            prevButton.disabled = currentCardIndex === 0; // Deshabilitar Anterior si es la primera tarjeta
+            nextButton.disabled = currentCardIndex === flashcards.length - 1; // Deshabilitar Siguiente si es la última tarjeta
+
+            // Añadir/quitar clases de estilo para los botones deshabilitados
+            if (prevButton.disabled) {
+                prevButton.classList.add('button-disabled');
+                prevButton.classList.remove('button-secondary');
+            } else {
+                prevButton.classList.remove('button-disabled');
+                prevButton.classList.add('button-secondary');
+            }
+
+            if (nextButton.disabled) {
+                nextButton.classList.add('button-disabled');
+                nextButton.classList.remove('button-secondary');
+            } else {
+                nextButton.classList.remove('button-disabled');
+                nextButton.classList.add('button-secondary');
+            }
+        }
+
+        // Event Listener para el botón "Mostrar Respuesta"
+        flipButton.addEventListener('click', () => {
+            flashcardElement.classList.toggle('flipped'); // Voltear la tarjeta
+            isFlipped = !isFlipped; // Actualizar el estado de volteo
+        });
+
+        // Event Listener para el botón "Siguiente"
+        nextButton.addEventListener('click', () => {
+            if (currentCardIndex < flashcards.length - 1) {
+                currentCardIndex++; // Avanzar al siguiente índice
+                displayCard(); // Mostrar la nueva tarjeta
+            }
+        });
+
+        // Event Listener para el botón "Anterior"
+        prevButton.addEventListener('click', () => {
+            if (currentCardIndex > 0) {
+                currentCardIndex--; // Retroceder al índice anterior
+                displayCard(); // Mostrar la nueva tarjeta
+            }
+        });
+
+        // Mostrar la primera tarjeta al cargar la página
+        displayCard();
+
+    </script>
+
+</body>
+</html>
