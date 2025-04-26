@@ -3,408 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Opción Múltiple: Descentralización</title>
+    <title>Diagrama: Proceso para Gestionar Reuniones</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Estilos adicionales para las flechas y el layout */
         body {
-            font-family: "Inter", sans-serif;
-            background-color: #e5e7eb;
+            font-family: 'Inter', sans-serif; /* Fuente Inter */
+            background-color: #f0f4f8; /* Fondo gris muy claro */
+        }
+        .flow-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 2rem;
+            gap: 1.5rem; /* Espacio entre elementos principales */
         }
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+        .node {
+            background-color: #1e3a8a; /* Azul oscuro principal (blue-800) */
+            color: #e0f2fe; /* Texto azul muy claro (light-blue-100) */
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.5rem; /* Esquinas redondeadas */
+            text-align: center;
+            border: 1px solid #172554; /* Borde azul más oscuro (blue-900) */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            min-width: 150px;
+            max-width: 300px; /* Ancho máximo para evitar cajas muy anchas */
+        }
+        .decision-node {
+            background-color: #1d4ed8; /* Azul un poco más claro (blue-700) */
+            border-color: #1e40af; /* Borde azul (blue-800) */
+        }
+        .action-node {
+            background-color: #2563eb; /* Azul medio (blue-600) */
+            border-color: #1d4ed8; /* Borde azul (blue-700) */
+        }
+        .outcome-node {
+            background-color: #3b82f6; /* Azul más claro (blue-500) */
+            border-color: #2563eb; /* Borde azul (blue-600) */
+            color: #ffffff; /* Texto blanco */
+        }
+        .arrow {
             width: 100%;
             text-align: center;
+            position: relative;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e3a8a; /* Color de la flecha (azul oscuro) */
         }
-        .question {
-            font-size: 1.4rem;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .options-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .option-button {
-            background-color: #f3f4f6;
-            border: 1px solid #d1d5db;
-            border-radius: 5px;
-            padding: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            text-align: left;
-            color: #333;
-        }
-        .option-button:hover {
-            background-color: #e5e7eb;
-            border-color: #9ca3af;
-        }
-        .option-button.correct {
-            background-color: #d1fae5;
-            border-color: #34d399;
-        }
-        .option-button.incorrect {
-            background-color: #fee2e2;
-            border-color: #f87171;
-        }
-        .feedback {
-            margin-top: 15px;
-            font-size: 1.1rem;
+        .arrow::after {
+            content: '↓'; /* Flecha hacia abajo */
+            font-size: 1.5rem; /* Tamaño de la flecha */
             font-weight: bold;
+            display: block;
         }
-        .feedback.correct {
-            color: #059669;
+         /* Contenedor para ramas paralelas */
+        .branches {
+            display: flex;
+            flex-direction: column; /* Apilado en móvil */
+            gap: 2rem;
+            width: 100%;
+            align-items: stretch; /* Que las ramas ocupen el espacio */
         }
-        .feedback.incorrect {
-            color: #ef4444;
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            border: 2px dashed #60a5fa; /* Borde discontinuo azul claro (blue-400) */
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            background-color: #eff6ff; /* Fondo azul muy pálido (blue-50) */
+            flex: 1; /* Para que ocupen espacio similar en pantallas grandes */
         }
-        .next-button {
-            background-color: #3b82f6;
-            color: #ffffff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
-        }
-        .next-button:hover {
-            background-color: #2563eb;
-        }
-        .score {
-            margin-top: 20px;
-            font-size: 1.2rem;
+        .branch-title {
             font-weight: bold;
-            color: #4b5563;
+            color: #1e3a8a; /* Azul oscuro */
+            margin-bottom: 0.5rem;
+            text-align: center;
         }
-        .progress {
-            margin-top: 10px;
-            font-size: 1rem;
-            color: #6b7280;
+
+        /* Estilos responsivos para pantallas más grandes */
+        @media (min-width: 768px) { /* md breakpoint */
+            .branches {
+                flex-direction: row; /* Lado a lado en pantallas medianas y grandes */
+                justify-content: space-around; /* Espacio entre ramas */
+                align-items: flex-start; /* Alinear arriba */
+            }
+            .branch {
+                 min-width: 300px; /* Ancho mínimo para ramas */
+            }
         }
+
+        /* Estilo para la Táctica Alternativa */
+        .alternative-tactic {
+            border: 2px solid #1e3a8a; /* Borde sólido azul oscuro */
+            background-color: #dbeafe; /* Fondo azul claro (blue-100) */
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            width: 100%;
+            max-width: 600px; /* Ancho máximo */
+        }
+        .alternative-tactic .node {
+             background-color: #1e40af; /* Azul (blue-800) */
+             border-color: #172554; /* Azul más oscuro (blue-900) */
+        }
+         .alternative-tactic .outcome-node {
+             background-color: #3b82f6; /* Azul (blue-500) */
+             border-color: #2563eb; /* Azul (blue-600) */
+         }
+
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="flow-container">
+        <h1 class="text-2xl font-bold text-center mb-6 text-blue-900">Proceso para Gestionar Reuniones Potencialmente Innecesarias</h1>
 
-    <div class="container">
-        <div class="question" id="question"></div>
-        <div class="options-container" id="options-container">
+        <div class="node">Recibes invitación a reunión</div>
+        <div class="arrow"></div>
+        <div class="node decision-node">¿Parece innecesaria / Se podría resolver por email?</div>
+        <div class="arrow"></div>
+
+        <div class="branches">
+            <div class="branch">
+                <div class="branch-title">Opción 1: Hay Confianza</div>
+                <div class="node action-node">Verificar agenda / Contactar organizador</div>
+                <div class="arrow"></div>
+                <div class="node action-node">Clarificar objetivo y expectativas</div>
+                <div class="arrow"></div>
+                <div class="node decision-node">¿Se puede resolver por email?</div>
+                <div class="flex flex-col md:flex-row gap-4 w-full justify-center items-center">
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="text-sm text-blue-700 font-medium">Sí</div>
+                        <div class="arrow"></div>
+                        <div class="node outcome-node">Enviar email detallado</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                         <div class="text-sm text-blue-700 font-medium">No</div>
+                         <div class="arrow"></div>
+                        <div class="node action-node">Asistir a la reunión</div>
+                        <div class="arrow"></div>
+                        <div class="node decision-node">¿Fue realmente innecesaria?</div>
+                         <div class="arrow"></div>
+                         <div class="node outcome-node">Dar feedback constructivo</div>
+                    </div>
+                </div>
             </div>
-        <div class="feedback" id="feedback"></div>
-        <button class="next-button" id="next-button" style="display: none;">Siguiente Pregunta</button>
-        <div class="score">Puntuación: <span id="score">0</span></div>
-        <div class="progress">Pregunta <span id="current-question">1</span> de <span id="total-questions"></span></div>
+
+            <div class="branch">
+                 <div class="branch-title">Opción 2: Sin Confianza / Jerarquía</div>
+                <div class="node action-node">Asistir a la reunión</div>
+                <div class="arrow"></div>
+                <div class="node action-node">Responder preguntas</div>
+                 <div class="arrow"></div>
+                <div class="node outcome-node">Indicar sutilmente que la info ya existía (documentación, email)</div>
+            </div>
+        </div>
+
+        <div class="alternative-tactic">
+             <div class="branch-title text-lg">Estrategias Adicionales</div>
+             <div class="flex flex-col md:flex-row gap-4 justify-around items-start">
+                 <div class="flex flex-col items-center gap-2 flex-1">
+                     <div class="branch-title">Proactividad</div>
+                     <div class="node">Conseguir agenda</div>
+                     <div class="arrow"></div>
+                     <div class="node">¿Info ya existe (wiki, docs)?</div>
+                     <div class="arrow"></div>
+                     <div class="node action-node">Enviar info al organizador</div>
+                     <div class="arrow"></div>
+                     <div class="node outcome-node">Preguntar si se puede cancelar</div>
+                </div>
+                 <div class="flex flex-col items-center gap-2 flex-1">
+                     <div class="branch-title">Declinar Asistencia</div>
+                     <div class="node action-node">Indicar indisponibilidad</div>
+                     <div class="arrow"></div>
+                     <div class="node action-node">Ofrecer responder a notas/acciones por escrito</div>
+                     <div class="arrow"></div>
+                     <div class="flex flex-col md:flex-row gap-4 w-full justify-center items-center">
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="text-sm text-blue-700 font-medium">Resultado A</div>
+                            <div class="arrow"></div>
+                            <div class="node outcome-node">Organizador dice que no es necesario asistir</div>
+                        </div>
+                         <div class="flex flex-col items-center gap-2">
+                             <div class="text-sm text-blue-700 font-medium">Resultado B</div>
+                             <div class="arrow"></div>
+                             <div class="node outcome-node">Se generan notas estructuradas (evidencia posible innecesariedad)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    <script>
-        const questions = [
-            {
-                question: "¿Qué significa la descentralización en un equipo de trabajo según el texto?",
-                options: [
-                    "Que cada miembro trabaja de forma totalmente independiente.",
-                    "La capacidad de los equipos para operar independientemente de figuras o procesos clave.",
-                    "Que las decisiones son tomadas únicamente por el líder del equipo.",
-                    "La dependencia de pocas personas clave para las tareas esenciales."
-                ],
-                correctAnswer: "La capacidad de los equipos para operar independientemente de figuras o procesos clave."
-            },
-            {
-                question: "¿Por qué la dependencia de pocas personas clave puede generar problemas en un equipo?",
-                options: [
-                    "Fomenta la innovación y creatividad entre los miembros.",
-                    "Aumenta la velocidad y agilidad en la toma de decisiones.",
-                    "Puede generar cuellos de botella y retrasos cuando esas personas no están disponibles.",
-                    "Facilita la incorporación de nuevos miembros al equipo."
-                ],
-                correctAnswer: "Puede generar cuellos de botella y retrasos cuando esas personas no están disponibles."
-            },
-            {
-                question: "Menciona y explica brevemente un beneficio de la descentralización en equipos de trabajo presentado en el texto.",
-                options: [
-                    "Reduce la necesidad de documentación.",
-                    "Aumenta la dependencia de un líder fuerte.",
-                    "Genera cuellos de botella en los procesos.",
-                    "Aumenta la velocidad y agilidad al evitar retrasos por aprobaciones constantes."
-                ],
-                correctAnswer: "Aumenta la velocidad y agilidad al evitar retrasos por aprobaciones constantes."
-            },
-            {
-                question: "¿De qué manera la descentralización contribuye a la velocidad y agilidad de un equipo?",
-                options: [
-                    "Al centralizar todas las decisiones en una sola persona.",
-                    "Al requerir la aprobación de cada tarea por el líder.",
-                    "Al eliminar la necesidad de validación o aprobación permanente de tareas por una única persona.",
-                    "Al crear más pasos burocráticos en los procesos."
-                ],
-                correctAnswer: "Al eliminar la necesidad de validación o aprobación permanente de tareas por una única persona."
-            },
-            {
-                question: "¿Cómo fomenta la descentralización la resiliencia y continuidad en el trabajo ante la ausencia de un miembro?",
-                options: [
-                    "Centralizando el conocimiento en la persona ausente.",
-                    "Dependendo de la suerte para que las tareas se completen.",
-                    "Asegurando que, gracias a procesos claros y documentación, otros miembros pueden continuar las tareas.",
-                    "Deteniendo todas las actividades hasta que el miembro regrese."
-                ],
-                correctAnswer: "Asegurando que, gracias a procesos claros y documentación, otros miembros pueden continuar las tareas."
-            },
-            {
-                question: "Según el texto, ¿qué rol juega la documentación en un equipo descentralizado?",
-                options: [
-                    "Debe ser perfecta y definir absolutamente todo.",
-                    "No es importante si el equipo es muy experimentado.",
-                    "Debe ser lo suficientemente clara para que cualquier persona con conocimientos básicos pueda realizar la tarea.",
-                    "Solo es necesaria para el líder del equipo."
-                ],
-                correctAnswer: "Debe ser lo suficientemente clara para que cualquier persona con conocimientos básicos pueda realizar la tarea."
-            },
-            {
-                question: "¿De qué manera la descentralización impulsa la innovación y la creatividad dentro de un equipo?",
-                options: [
-                    "Al centralizar la generación de ideas en una sola persona.",
-                    "Al no depender de una sola persona para las tareas, permitiendo a todos proponer ideas.",
-                    "Al limitar el acceso a la información a pocos miembros.",
-                    "Al seguir procesos estrictos sin posibilidad de modificación."
-                ],
-                correctAnswer: "Al no depender de una sola persona para las tareas, permitiendo a todos proponer ideas."
-            },
-            {
-                question: "¿Cómo facilita la descentralización la incorporación de nuevos miembros a un equipo?",
-                options: [
-                    "Haciendo que la mayoría de los procesos no estén documentados.",
-                    "Requiriendo que los nuevos miembros descubran los procesos por sí mismos.",
-                    "Asegurando que la mayoría de los procesos estén documentados por cultura del equipo.",
-                    "Dependiendo únicamente de la formación individual por parte del líder."
-                ],
-                correctAnswer: "Asegurando que la mayoría de los procesos estén documentados por cultura del equipo."
-            },
-            {
-                question: "¿Cuál es la diferencia entre la independencia total y la descentralización en un equipo, según el autor?",
-                options: [
-                    "Son exactamente lo mismo.",
-                    "La independencia total implica cuellos de botella, la descentralización no.",
-                    "La descentralización evita cuellos de botella, no implica independencia total de cada persona.",
-                    "La independencia total fomenta la colaboración, la descentralización no."
-                ],
-                correctAnswer: "La descentralización evita cuellos de botella, no implica independencia total de cada persona."
-            },
-            {
-                question: "En base al texto, ¿cuál es un efecto colateral positivo de tener un equipo descentralizado en relación a la documentación?",
-                options: [
-                    "Se reduce la necesidad de documentación.",
-                    "Se genera una cultura de no documentar los procesos.",
-                    "Se genera una cultura de documentación de procesos, facilitando la adaptación de nuevos miembros.",
-                    "La documentación se vuelve innecesaria."
-                ],
-                correctAnswer: "Se genera una cultura de documentación de procesos, facilitando la adaptación de nuevos miembros."
-            },
-             {
-                question: "Según el glosario, ¿qué término se refiere a un punto de congestión en un proceso donde el trabajo se ralentiza?",
-                options: [
-                    "Agilidad",
-                    "Descentralización",
-                    "Cuello de Botella",
-                    "Resiliencia"
-                ],
-                correctAnswer: "Cuello de Botella"
-            },
-            {
-                question: "La capacidad de un equipo para adaptarse rápidamente a los cambios se define en el glosario como:",
-                options: [
-                    "Resiliencia",
-                    "Agilidad",
-                    "Innovación",
-                    "Escalabilidad"
-                ],
-                correctAnswer: "Agilidad"
-            },
-            {
-                question: "El término que describe la capacidad de un equipo para mantener la productividad ante eventos inesperados es:",
-                options: [
-                    "Creatividad",
-                    "Documentación",
-                    "Resiliencia",
-                    "Cuello de Botella"
-                ],
-                correctAnswer: "Resiliencia"
-            },
-            {
-                question: "La introducción de nuevas ideas que mejoran los procesos se conoce como:",
-                options: [
-                    "Agilidad",
-                    "Innovación",
-                    "Escalabilidad",
-                    "Descentralización"
-                ],
-                correctAnswer: "Innovación"
-            },
-            {
-                question: "La capacidad de un equipo para generar ideas originales y valiosas se llama:",
-                options: [
-                    "Escalabilidad",
-                    "Resiliencia",
-                    "Creatividad",
-                    "Agilidad"
-                ],
-                correctAnswer: "Creatividad"
-            },
-             {
-                question: "Según el glosario, la capacidad de un equipo para crecer y adaptarse a un mayor volumen de trabajo es:",
-                options: [
-                    "Innovación",
-                    "Agilidad",
-                    "Escalabilidad",
-                    "Resiliencia"
-                ],
-                correctAnswer: "Escalabilidad"
-            },
-             {
-                question: "El registro de procesos, procedimientos y conocimientos de un equipo se define como:",
-                options: [
-                    "CTA",
-                    "Hook",
-                    "Cuello de Botella",
-                    "Documentación"
-                ],
-                correctAnswer: "Documentación"
-            }
-        ];
-
-        let currentQuestionIndex = 0;
-        let score = 0;
-        const questionElement = document.getElementById('question');
-        const optionsContainer = document.getElementById('options-container');
-        const feedbackElement = document.getElementById('feedback');
-        const nextButton = document.getElementById('next-button');
-        const scoreElement = document.getElementById('score');
-        const currentQuestionSpan = document.getElementById('current-question');
-        const totalQuestionsSpan = document.getElementById('total-questions');
-
-        // Función para barajar las opciones de respuesta
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        // Función para mostrar la pregunta actual
-        function displayQuestion() {
-            feedbackElement.textContent = '';
-            nextButton.style.display = 'none';
-            optionsContainer.innerHTML = ''; // Limpiar opciones anteriores
-
-            const currentQuestion = questions[currentQuestionIndex];
-            questionElement.textContent = currentQuestion.question;
-
-            const shuffledOptions = shuffleArray([...currentQuestion.options]); // Barajar opciones
-
-            shuffledOptions.forEach(option => {
-                const button = document.createElement('button');
-                button.classList.add('option-button');
-                button.textContent = option;
-                button.addEventListener('click', () => checkAnswer(option, button));
-                optionsContainer.appendChild(button);
-            });
-
-            // Actualizar el progreso
-            currentQuestionSpan.textContent = currentQuestionIndex + 1;
-            totalQuestionsSpan.textContent = questions.length;
-        }
-
-        // Función para comprobar la respuesta
-        function checkAnswer(selectedOption, button) {
-            const currentQuestion = questions[currentQuestionIndex];
-            disableOptions(); // Deshabilitar botones después de seleccionar una respuesta
-
-            if (selectedOption === currentQuestion.correctAnswer) {
-                feedbackElement.textContent = "¡Correcto!";
-                feedbackElement.classList.remove('incorrect');
-                feedbackElement.classList.add('correct');
-                button.classList.add('correct');
-                score++;
-                scoreElement.textContent = score;
-            } else {
-                feedbackElement.textContent = "Incorrecto. La respuesta correcta es: " + currentQuestion.correctAnswer;
-                feedbackElement.classList.remove('correct');
-                feedbackElement.classList.add('incorrect');
-                button.classList.add('incorrect');
-                // Marcar la respuesta correcta
-                const optionButtons = optionsContainer.querySelectorAll('.option-button');
-                optionButtons.forEach(btn => {
-                    if (btn.textContent === currentQuestion.correctAnswer) {
-                        btn.classList.add('correct');
-                    }
-                });
-            }
-            nextButton.style.display = 'block'; // Mostrar el botón "Siguiente"
-        }
-
-        // Función para deshabilitar los botones de opción
-        function disableOptions() {
-            const optionButtons = optionsContainer.querySelectorAll('.option-button');
-            optionButtons.forEach(button => {
-                button.disabled = true;
-                button.style.cursor = 'default';
-            });
-        }
-
-        // Función para ir a la siguiente pregunta
-        function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
-                displayQuestion();
-            } else {
-                // Fin del juego
-                questionElement.textContent = "¡Juego Terminado!";
-                optionsContainer.innerHTML = "";
-                feedbackElement.textContent = `Tu puntuación final es ${score} de ${questions.length}.`;
-                feedbackElement.classList.remove('correct', 'incorrect');
-                feedbackElement.style.color = '#4b5563'; // Color gris
-                nextButton.style.display = 'none';
-                 const progressElement = document.querySelector('.progress');
-                 if (progressElement) progressElement.style.display = 'none';
-
-                 // Opcional: Agregar un botón para reiniciar el juego
-                 const restartButton = document.createElement('button');
-                 restartButton.classList.add('next-button'); // Reutilizamos el estilo del botón
-                 restartButton.textContent = "Jugar de nuevo";
-                 restartButton.addEventListener('click', restartGame);
-                 optionsContainer.appendChild(restartButton); // Agregamos al optionsContainer para que esté centrado
-            }
-        }
-
-        // Función para reiniciar el juego
-        function restartGame() {
-            currentQuestionIndex = 0;
-            score = 0;
-            scoreElement.textContent = score;
-             const progressElement = document.querySelector('.progress');
-             if (progressElement) progressElement.style.display = 'block'; // Mostrar el progreso de nuevo
-            displayQuestion();
-        }
-
-        // Event listener para el botón "Siguiente Pregunta"
-        nextButton.addEventListener('click', nextQuestion);
-
-        // Inicializar el juego al cargar la página
-        window.onload = function() {
-            displayQuestion();
-        };
-
-    </script>
-
 </body>
 </html>
